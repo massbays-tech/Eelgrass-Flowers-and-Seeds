@@ -96,20 +96,18 @@ plot(d.t.2024.merged$date.time, d.t.2024.merged$temp.C, type='l', xlab='Date', y
 
 #Convert HOBO data to daily means
 d.t.2024.merged.day = d.t.2024.merged %>%
-  mutate(date = floor_date(date.time, unit="days")) %>%
+  mutate(date = as.character(floor_date(date.time, unit="days"))) %>%
   group_by(d.t.2024.merged$site.id, date) %>%
   summarize(
     lon=mean(d.t.2024.merged$longitude),
     lat=mean(d.t.2024.merged$latitude),
-    temp.daily.C=mean(temp.C),
-   )
+    temp.daily.C=mean(temp.C, na.omit = TRUE),
+  )
 
 colnames(d.t.2024.merged.day) <- c("site.id", "date", "lon", "lat", "temp.daily.C")
 
-d.t.2024.merged.day$date<-as.character(d.t.2024.merged.day)
-
-
-str(d.t.2024.merged.day$date)
+#omit NA rows
+d.t.2024.merged.day <- na.omit(d.t.2024.merged.day)
 
 head(d.t.2024.merged.day)
 
@@ -138,14 +136,31 @@ extract <- rxtracto(dataInfo, parameter=parameter,
                     ycoord=ycoord,
                     xlen=0.1,ylen=0.1)
 
-#testing but not working
-extract <- rxtracto_3D(dataInfo, parameter, 
-                       tcoord=tcoord,
-                       xcoord=xcoord,
-                       ycoord=ycoord)
-
-#eventually will add new sst field to df
+#add new sst field to df
 d.t.2024.merged.day$sst<-extract$'mean analysed_sst'
 
+str(d.t.2024.merged.day)
 
 
+#plot Hobo vs SST temperatures
+ggplot(d.t.2024.merged.day, aes(x=temp.daily.C, y=sst, color=site.id)) + 
+  coord_fixed(xlim=c(8,25),ylim=c(8,25)) +
+  geom_point()
+
+#still working on plot aesthetic
+  ylab('Satellite SST')  + 
+  xlab('HOBO average daily temp') +
+  scale_x_continuous(minor_breaks = seq(8, 25)) + 
+  scale_y_continuous(minor_breaks = seq(8, 25)) + 
+  #geom_abline(a=fit[1],b=fit[2]) +
+  #annotation_custom(my_grob) + 
+  #scale_color_gradientn(colours = "viridis", name="HOBO\Latitude") +
+  scale_color_viridis(discrete = FALSE, name="HOBO\Latitude") +
+  labs(title=main) + theme(plot.title = element_text(size=20, face="bold", vjust=2)) 
+
+#linear regression
+lmHeight = lm(sst~temp.daily.C, data = d.t.2024.merged.day)
+summary(lmHeight)
+
+#Create a map of SST and overlay the buoy data
+#tutorial: https://github.com/coastwatch-training/CoastWatch-Tutorials/blob/main/matchup-satellite-buoy-data/R/matchup_satellite_buoy_data.md
