@@ -7,9 +7,10 @@ editor_options:
   chunk_output_type: console
 ---
 
+#concurrent edits using branches. What will be different?
+#let's see
+#...
 
-#this is jill's 2nd test! JC testing same line concurrent edits
->>>>>>> 852f75371d9173be300b3e5fa941f8863fcfcc9b
 #Packages Install
 ```{r}
 #only do this if these packages aren't already present on your local drive
