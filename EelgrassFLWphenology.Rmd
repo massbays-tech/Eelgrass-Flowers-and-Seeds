@@ -11,6 +11,10 @@ editor_options:
 #let's see
 #...
 
+
+#how much wood would a woodchuck chuck?
+#852f75371d9173be300b3e5fa941f8863fcfcc9b +12345
+
 #Packages Install
 ```{r}
 #only do this if these packages aren't already present on your local drive
