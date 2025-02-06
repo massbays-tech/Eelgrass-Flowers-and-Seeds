@@ -7,62 +7,467 @@ editor_options:
   chunk_output_type: console
 ---
 
-
-#this is jill's 2nd test! JC testing same line concurrent edits
->>>>>>> 852f75371d9173be300b3e5fa941f8863fcfcc9b
-#Packages Install
+#Packages
 ```{r}
-#only do this if these packages aren't already present on your local drive
-install.packages("pillar")
-install.packages("tidyr")
-install.packages("dplyr")
-install.packages("lubridate")
-install.packages("ggplot2")
-install.packages("mgcv")
-
-#testing edits here
-```
-
-#Packages Turn-on
-```{r}
-#Data Carpentry packages
-library(pillar)
 library(tidyr)
 library(dplyr)
 library(lubridate)
-
-#Plotting packages
 library(ggplot2)
 library(glue) #for plot function code; plot title function
 library(purrr) #for plot function code; map function
+#library(readxl) #install excel files
 
-#GAMs Package
+#GAMs
 library(mgcv)
+
+#Maps
+library(maps)
+library(mapdata)
+library(mapproj)
 ```
 
-#FS Data upload
-##EG 2024
+#Data upload EG 2023
 ```{r}
-d.flw.stage.2024 <- read.csv("~/Downloads/whoi.eelgrass.flw.stage.data.csv")
+d.flw.stage.2023 <- read.csv("C:/Users/Forest.Schenck/Downloads/eelgrass.flw.phnlgy.database.csv")
 
-d.flw.den.2024 <- read.csv("~/Downloads/whoi.eelgrass.density.data.csv")
 ```
 
-##Data upload Hobos (temp/light) 2024
+#Data upload EG 2024
 ```{r}
-d.t.AQ <- read.csv("~/Downloads/21177827_AQ.csv")
+d.flw.stage.WHOI.2024 <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/whoi.eelgrass.flw.stage.data.csv")
 
-d.t.CB <- read.csv("~/Downloads/21258498_CB.csv")
+d.flw.den.WHOI.2024 <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/whoi.eelgrass.density.data.csv")
 
-d.t.CI <- read.csv("~/Downloads/20536645_CI.csv")
+d.flw.stage.RI.SNEP.2024 <- read.csv('C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/RI.snep.eelgrass.flw.stage.data.master.csv')
 
-d.t.PC <- read.csv("~/Downloads/21177829_PC.csv")
+d.flw.den.RI.SNEP.2024 <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/RI.snep.eelgrass.density.data.master.csv")
 
-d.t.DC <- read.csv("~/Downloads/21258490_DC.csv")
+d.flw.stage.MA.SNEP.2024 <- read.csv('C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/snep.eelgrass.flw.stage.data.csv')
 
-d.t.LH <- read.csv("~/Downloads/10942817_LH.csv")
+d.flw.den.MA.SNEP.2024 <- read.csv('C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/snep.eelgrass.density.data.csv')
 
-d.t.SH <- read.csv("~/Downloads/21177828_SH.csv")
+#d.harvest.2024 <- read.csv("C:/Users/Forest.Schenck/Downloads/whoi.eelgrass.flw.harvest.data.csv")
+```
+
+#Data upload Hobos (temp/light) 2024
+```{r}
+d.t.AQ <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/Hobo/21177827_AQ.csv")
+
+d.t.CB <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/Hobo/21258498_CB.csv")
+
+d.t.CI <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/Hobo/20536645_CI.csv")
+
+d.t.PC <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/Hobo/21177829_PC.csv")
+
+d.t.DC <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/Hobo/21258490_DC.csv")
+
+d.t.LH <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/Hobo/10942817_LH.csv")
+
+d.t.SH <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/Hobo/21177828_SH.csv")
+
+d.t.CC <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/Hobo/21982329_CC.csv")
+
+d.t.WI <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/Hobo/21982330_WI.csv")
+
+d.t.OB <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/Hobo/21982331_OB.csv")
+
+d.t.WC <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/Hobo/21982332_WC.csv")
+
+d.t.GB <- read.csv("C:/Users/Forest.Schenck/Desktop/FS Local FLW Data/Hobo/21982334_GB.csv")
+
+```
+
+#Phenology 2023
+##data carpentry
+```{r}
+str(d.flw.stage.2023)
+
+d.flw.stage.2023.sum <- d.flw.stage.2023 %>%
+  mutate(date.collected = mdy(date.collected)) %>%
+  group_by(Town, Subsite, date.collected) %>%
+  summarise(spathe.stage.PS = sum(spathe.stage.PS, na.rm = T), spathe.stage.0 = sum(spathe.stage.0, na.rm = T), spathe.stage.1 = sum(spathe.stage.1, na.rm = T), spathe.stage.2 = sum(spathe.stage.2, na.rm = T), spathe.stage.3 = sum(spathe.stage.3, na.rm = T), spathe.stage.4 = sum(spathe.stage.4, na.rm = T), spathe.stage.5 = sum(spathe.stage.5, na.rm = T), spathe.stage.6 = sum(spathe.stage.6, na.rm = T)) %>%
+  pivot_longer(!Town:date.collected, names_to = "flw.stage", values_to = "count") %>%
+  mutate(flw.stage = as.factor(flw.stage)) %>%
+  mutate(flw.stage = factor(flw.stage, levels=c ('spathe.stage.PS', 'spathe.stage.0', 'spathe.stage.1', 'spathe.stage.2', 'spathe.stage.3', 'spathe.stage.4', 'spathe.stage.5', 'spathe.stage.6')))
+
+d.flw.stage.2023.sum = as.data.frame(d.flw.stage.2023.sum)
+
+
+str(d.flw.stage.2023.sum)
+```
+
+##plot Bassett Island
+```{r}
+p <- ggplot(filter(d.flw.stage.2023.sum, Town == "Bourne" & Subsite == "A"), aes(x = date.collected, y = count, fill = flw.stage)) + 
+  geom_col(position = "fill") +
+  xlab("Date") +
+  ylab("Proportion") +
+  scale_fill_brewer() +
+  theme_classic()
+
+p
+
+```
+
+##plot Channel Shoal
+```{r}
+p <- ggplot(filter(d.flw.stage.2023.sum, Town == "Bourne" & Subsite == "B"), aes(x = date.collected, y = count, fill = flw.stage)) + 
+  geom_col(position = "fill") +
+  xlab("Date") +
+  ylab("Proportion") +
+  scale_fill_brewer() +
+  theme_classic()
+
+p
+```
+
+##plot Clark Island South
+```{r}
+p <- ggplot(filter(d.flw.stage.2023.sum, Town == "Duxbury"), aes(x = date.collected, y = count, fill = flw.stage)) + 
+  geom_col(position = "fill") +
+  xlab("Date") +
+  ylab("Proportion") +
+  scale_fill_brewer() +
+  theme_classic()
+
+p
+```
+
+##plot Annisquam River Mouth N
+```{r}
+p <- ggplot(filter(d.flw.stage.2023.sum, Town == "Gloucester"), aes(x = date.collected, y = count, fill = flw.stage)) + 
+  geom_col(position = "fill") +
+  xlab("Date") +
+  ylab("Proportion") +
+  scale_fill_brewer() +
+  theme_classic()
+
+p
+```
+
+#Production 2023
+##data carpentry
+```{r}
+str(d.flw.stage)
+
+d.seed.production <- d.flw.stage %>%
+  mutate(date.collected = mdy(date.collected)) %>%
+  mutate(seeds.counted = ifelse(Town == "Bourne" & Subsite == "A" & date.collected == "2023-06-06" & shoot.no <=5, "N", "Y")) %>%
+  filter(seeds.counted == "Y") %>%
+  filter(shoot.no != "NA") %>%
+  group_by(Town, Subsite, date.collected, shoot.no) %>%
+  summarise(no.seeds.sum = sum(no.seeds, na.rm = T))
+  
+
+d.seed.production= as.data.frame(d.seed.production)
+
+
+str(d.seed.production)
+```
+
+##plot Bassett Island
+```{r}
+p <- ggplot(filter(d.seed.production, Town == "Bourne" & Subsite == "A"), aes(x = as.factor(date.collected), y = no.seeds.sum)) + 
+  geom_boxplot() +
+  xlab("Date") +
+  ylab("no.seeds.per.shoot") +
+  theme_classic()
+
+p
+```
+
+##plot Channel Shoal
+```{r}
+p <- ggplot(filter(d.seed.production, Town == "Bourne" & Subsite == "B"), aes(x = as.factor(date.collected), y = no.seeds.sum)) + 
+  geom_boxplot() +
+  xlab("Date") +
+  ylab("no.seeds.per.shoot") +
+  theme_classic()
+
+p
+```
+
+##plot Clark Island South
+```{r}
+p <- ggplot(filter(d.seed.production, Town == "Duxbury"), aes(x = as.factor(date.collected), y = no.seeds.sum)) + 
+  geom_boxplot() +
+  xlab("Date") +
+  ylab("no.seeds.per.shoot") +
+  theme_classic()
+
+p
+```
+
+##plot Annisquam River Mouth N
+```{r}
+p <- ggplot(filter(d.seed.production, Town == "Gloucester"), aes(x = as.factor(date.collected), y = no.seeds.sum)) + 
+  geom_boxplot() +
+  geom_point() +
+  stat_summary(geom = "point", fun = "mean", col = "red", size = 3, shape = 24, fill = "red") +
+  xlab("Date") +
+  ylab("no.seeds.per.shoot") +
+  theme_classic()
+
+p
+```
+
+#Phenology 2024
+##data carpentry (prop)
+```{r}
+str(d.flw.stage.WHOI.2024)
+
+d.flw.stage.RI.SNEP.2024 <- as.data.frame(d.flw.stage.RI.SNEP.2024) %>%
+  mutate(spathe.stage.0 = as.integer(spathe.stage.0),
+         site.id = if_else(is.na(site.id) == T, "NR", site.id))
+str(d.flw.stage.RI.SNEP.2024)
+
+d.flw.stage.MA.SNEP.2024 <- as.data.frame(d.flw.stage.MA.SNEP.2024) %>%
+  mutate(no.seeds = as.numeric(no.seeds))
+str(d.flw.stage.MA.SNEP.2024)
+
+
+d.flw.stage.2024 <- dplyr::bind_rows(d.flw.stage.WHOI.2024, d.flw.stage.RI.SNEP.2024, d.flw.stage.MA.SNEP.2024)
+
+
+d.flw.stage.2024.sum <- d.flw.stage.2024 %>%
+  mutate(date.collected = mdy(date.collected, tz = "America/New_York")) %>%
+  group_by(town, site.id, date.collected, shoot.no) %>%
+  summarise(spathe.stage.PS = sum(spathe.stage.PS, na.rm = T), spathe.stage.0 = sum(spathe.stage.0, na.rm = T), spathe.stage.1 = sum(spathe.stage.1, na.rm = T), spathe.stage.2 = sum(spathe.stage.2, na.rm = T), spathe.stage.3 = sum(spathe.stage.3, na.rm = T), spathe.stage.4 = sum(spathe.stage.4, na.rm = T), spathe.stage.5 = sum(spathe.stage.5, na.rm = T), spathe.stage.6 = sum(spathe.stage.6, na.rm = T), spathe.stage.7 = sum(spathe.stage.7, na.rm = T), spathe.stage.unk = sum(spathe.stage.unk, na.rm = T)) %>%
+  mutate(spathe.stage.0 = spathe.stage.PS + spathe.stage.0,
+         spathe.stage.6 = spathe.stage.6 + spathe.stage.7,
+         no.spathe = spathe.stage.0 + spathe.stage.1 + spathe.stage.2 + spathe.stage.3 + spathe.stage.4 + spathe.stage.5 + spathe.stage.6 + spathe.stage.unk,
+         #stage.PS = spathe.stage.PS/no.spathe, #combined PS and 0
+         stage.0 = spathe.stage.0/no.spathe,
+         stage.1 = spathe.stage.1/no.spathe,
+         stage.2 = spathe.stage.2/no.spathe,
+         stage.3 = spathe.stage.3/no.spathe,
+         stage.4 = spathe.stage.4/no.spathe,
+         stage.5 = spathe.stage.5/no.spathe,
+         stage.6 = spathe.stage.6/no.spathe,
+         #stage.7 = spathe.stage.7/no.spathe, #combined PS and 0
+         stage.unk = spathe.stage.unk/no.spathe) %>%
+  dplyr::select(town:shoot.no, stage.0:stage.6, stage.unk) %>%
+  pivot_longer(!town:shoot.no, names_to = "flw.stage", values_to = "prop") %>%
+  mutate(flw.stage = as.factor(flw.stage),
+         shoot.no = as.factor(shoot.no)) %>%
+  mutate(flw.stage = factor(flw.stage, levels=c ('stage.0', 'stage.1', 'stage.2', 'stage.3', 'stage.4', 'stage.5', 'stage.6', 'stage.unk'))) %>%
+  mutate(j = as.POSIXlt(date.collected, tz = "America/New_York")$yday + 1) #add 1 for leap year
+
+d.flw.stage.2024.sum = as.data.frame(d.flw.stage.2024.sum)
+
+
+str(d.flw.stage.2024.sum)
+```
+
+
+##Stage Proportion Plot Function (prop)
+```{r}
+
+stage.plot <- function(site.code) {
+  d.flw.stage.2024.sum %>%
+    filter(.data$site.id == .env$site.code) %>%
+    ggplot() +
+    aes(x = j, y = prop, color = flw.stage) +
+    geom_point() +
+    geom_smooth(se = FALSE) +
+    xlab("Julian date") +
+    ylab("Proportion") +
+    coord_cartesian(xlim = c(100,300))+
+    geom_hline(yintercept = 0.5, linetype = "dashed") +
+    scale_x_continuous(breaks = c(121, 152, 182, 213, 244, 276)) +
+    #scale_x_continuous(breaks = seq(100, 300, by = 10), minor_breaks = seq(100,300, by = 1)) +
+    scale_colour_brewer(palette = "PuOr", direction = -1) +
+    ggtitle(glue("Site: {site.code}")) +
+    #theme(plot.title.position = "plot") +
+    #theme(axis.ticks.length = unit(0.2, "cm"), axis.ticks.minor = element_line(size = 0.5, color = "grey")) #+
+    theme_classic()
+}
+
+site.code <- c("SH", "CI", "PC", "LH", "PV", "AQ", "WB", "NB", "CB", "DC", "CC", "GB", "LI", "OB", "WC", "WI", "CL", "FG", "GI", "JB", "NR", "NK", "PI", "QU")
+
+site.plots <- purrr::map(site.code, stage.plot)
+
+site.plots[1:24]
+
+```
+
+##data carpentry (mean stage)
+```{r}
+str(d.flw.stage.2024)
+
+d.flw.stage.2024.mean <- d.flw.stage.2024 %>%
+  mutate(date.collected = mdy(date.collected, tz = "America/New_York")) %>%
+  group_by(town, site.id, date.collected, shoot.no) %>%
+  summarise(spathe.stage.PS = sum(spathe.stage.PS, na.rm = T), spathe.stage.0 = sum(spathe.stage.0, na.rm = T), spathe.stage.1 = sum(spathe.stage.1, na.rm = T), spathe.stage.2 = sum(spathe.stage.2, na.rm = T), spathe.stage.3 = sum(spathe.stage.3, na.rm = T), spathe.stage.4 = sum(spathe.stage.4, na.rm = T), spathe.stage.5 = sum(spathe.stage.5, na.rm = T), spathe.stage.6 = sum(spathe.stage.6, na.rm = T), spathe.stage.7 = sum(spathe.stage.7, na.rm = T), spathe.stage.unk = sum(spathe.stage.unk, na.rm = T)) %>%
+  mutate(spathe.stage.0 = spathe.stage.PS + spathe.stage.0,
+         spathe.stage.6 = spathe.stage.6 + spathe.stage.7,
+         no.spathe = spathe.stage.0 + spathe.stage.1 + spathe.stage.2 + spathe.stage.3 + spathe.stage.4 + spathe.stage.5 + spathe.stage.6,
+         stage.0 = (spathe.stage.0/no.spathe)*0,
+         stage.1 = (spathe.stage.1/no.spathe)*1,
+         stage.2 = (spathe.stage.2/no.spathe)*2,
+         stage.3 = (spathe.stage.3/no.spathe)*3,
+         stage.4 = (spathe.stage.4/no.spathe)*4,
+         stage.5 = (spathe.stage.5/no.spathe)*5,
+         stage.6 = (spathe.stage.6/no.spathe)*6,
+         stage.sum = stage.0 + stage.1 + stage.2 + stage.3 + stage.4 +stage.5 + stage.6) %>%
+  dplyr::select(town:shoot.no, stage.sum) %>%
+  mutate(j = as.POSIXlt(date.collected, tz = "America/New_York")$yday + 1) #add 1 for leap year
+
+d.flw.stage.2024.mean = as.data.frame(d.flw.stage.2024.mean)
+
+
+str(d.flw.stage.2024.mean)
+```
+
+##Stage Proportion Plot Function (mean stage)
+```{r}
+p <-ggplot(data = d.flw.stage.2024.mean, aes(x = j, y = stage.sum, color = site.id)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  xlab("Julian Day") +
+  ylab("Mean Stage Value") +
+  #scale_colour_brewer(palette = "PuOr") +
+  scale_x_continuous(breaks = c(121, 152, 182, 213, 244, 276)) +
+  geom_hline(yintercept = 4) +
+  theme_classic()
+  
+p
+
+#zoom plot
+p <-ggplot(data = d.flw.stage.2024.mean, aes(x =j, y = stage.sum.mean, color = site.id)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  xlab("Julian Date") +
+  ylab("Mean Stage Value") +
+  scale_colour_brewer(palette = "PuOr") +
+  geom_hline(yintercept = 4) +
+  coord_cartesian(ylim = c(3.5,4.5), xlim = c(190,225)) +
+  scale_x_continuous(breaks = seq(190,230, by = 2)) +
+  theme_classic()
+p
+```
+
+
+#Seed Production Per Shoot 2024
+
+##data carpentry
+```{r}
+str(d.flw.stage.2024)
+
+d.seed.production.2024.sum <- d.flw.stage.2024 %>%
+  mutate(date.collected = mdy(date.collected)) %>%
+  rowwise() %>%
+  mutate(no.seeds.total = sum(no.seeds, no.ovules.w.stigma, na.rm = T)) %>%
+  group_by(town, site.id, date.collected, shoot.no) %>%
+  summarise(no.seeds.total = sum(no.seeds.total, na.rm = T)) %>%
+  mutate(j = as.POSIXlt(date.collected)$yday + 1) %>% #add 1 for leap year
+  filter(is.na(shoot.no) == FALSE)
+
+d.seed.production.2024.sum = as.data.frame(d.seed.production.2024.sum)
+
+
+str(d.seed.production.2024.sum)
+```
+
+##Seed production per Shoot Plot Function
+```{r}
+
+seeds.per.shoot.plot <- function(site.code) {
+  d.seed.production.2024.sum %>%
+    filter(.data$site.id == .env$site.code) %>%
+    ggplot() +
+    aes(x = j, y = no.seeds.total) +
+    geom_point() +
+    geom_smooth(se = TRUE) +
+    coord_cartesian(xlim = c(100,300)) +
+    scale_x_continuous(breaks = c(121, 152, 182, 213, 244, 276)) +
+    xlab("Date") +
+    ylab("Seeds per shoot") +
+    ggtitle(glue("Site: {site.code}")) +
+    theme(plot.title.position = "plot") +
+    theme_classic()
+}
+
+site.code <- c("SH", "CI", "PC", "LH", "PV", "AQ", "WB", "NB", "CB", "DC", "CC", "GB", "LI", "OB", "WC", "WI", "CL", "FG", "GI", "JB", "NR", "NK", "PI", "QU")
+
+site.plots <- purrr::map(site.code, seeds.per.shoot.plot)
+
+site.plots[1:24]
+
+
+
+p <-ggplot(data = d.seed.production.2024.sum, aes(x = date.collected, y = no.seeds.total, color = site.id)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  xlab("Date") +
+  ylab("Seeds per shoot") +
+  scale_colour_brewer(palette = "PuOr") +
+  theme_classic()
+  
+p
+
+```
+
+
+#Flw Density 2024
+##data carpentry
+```{r}
+str(d.flw.den.WHOI.2024)
+
+d.flw.den.RI.SNEP.2024 <- as.data.frame(d.flw.den.RI.SNEP.2024) %>%
+  mutate(site.id = if_else(is.na(site.id) == T, "NR", site.id))
+str(d.flw.den.RI.SNEP.2024)
+
+d.flw.den.MA.SNEP.2024 <- as.data.frame(d.flw.den.MA.SNEP.2024)
+str(d.flw.den.MA.SNEP.2024)
+
+d.flw.den.2024 <- dplyr::bind_rows(d.flw.den.WHOI.2024, d.flw.den.RI.SNEP.2024, d.flw.den.MA.SNEP.2024)
+
+d.flw.den.2024.clean <- d.flw.den.2024 %>%
+  filter(is.na(shoot.type) == FALSE) %>%
+  mutate(date.collected = mdy(date.collected)) %>%
+  select(date.collected, site.id, quadrat.no, shoot.type, shoot.no) %>%
+  spread(key = shoot.type, value = shoot.no) %>%
+  filter(reproductive > 0 | vegetative > 0) %>% #only plots where eelgrass is present
+  mutate(flw.m.sq = reproductive * 4)
+
+```
+
+##Flw Density Plot Function
+```{r}
+p <-ggplot(data = d.flw.den.2024.clean, aes(x = date.collected, y = flw.m.sq, color = site.id)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  xlab("Date") +
+  ylab("Repros per m2") +
+  coord_cartesian(xlim = c(100,300)) +
+  scale_x_continuous(breaks = c(121, 152, 182, 213, 244, 276)) +
+  #scale_colour_brewer(palette = "PuOr") +
+  theme_classic()
+  
+p
+```
+
+
+#Seed collection estimates 2024
+## data carpentry
+```{r}
+
+str(d.harvest.2024)
+
+d.harvest.2024.totals <- d.harvest.2024 %>%
+  mutate(date.collected = mdy(date.collected)) %>%
+  group_by(date.collected, site.id) %>%
+  summarise(no.repro.shoots = sum(no.repro.shoots, na.rm = T))
+
+d.seed.production.2024.mean <- d.seed.production.2024.sum %>%
+  group_by(date.collected, site.id) %>%
+  summarise(no.seeds.mean = mean(no.seeds.total, na.rm = T))
+
+d.seed.harvest.2024 <- merge(d.seed.production.2024.mean, d.harvest.2024.totals, by = c("date.collected", "site.id")) %>%
+  mutate(estimated.seeds.collected = no.seeds.mean * no.repro.shoots)
+
+
 
 ```
 
@@ -90,13 +495,26 @@ d.t.PC <- d.t.PC %>%
 d.t.SH <- d.t.SH %>%
   mutate(site.id = "SH")
 
-str(d.t.SH)
+d.t.CC <- d.t.CC %>%
+  mutate(site.id = "CC")
 
-d.t.2024 <- bind_rows(d.t.AQ, d.t.CB, d.t.CI, d.t.DC, d.t.LH, d.t.PC, d.t.SH) %>%
+d.t.GB <- d.t.GB %>%
+  mutate(site.id = "GB")
+
+d.t.OB <- d.t.OB %>%
+  mutate(site.id = "OB")
+
+d.t.WC <- d.t.WC %>%
+  mutate(site.id = "WC")
+
+d.t.WI <- d.t.WI %>%
+  mutate(site.id = "WI")
+
+d.t.2024 <- bind_rows(d.t.AQ, d.t.CB, d.t.CI, d.t.DC, d.t.LH, d.t.PC, d.t.SH, d.t.CC, d.t.GB, d.t.OB, d.t.WC, d.t.WI) %>%
   mutate(date.time = mdy_hm(date.time)) %>%
   filter(date.time > "2024-05-15 19:45") %>%
   filter(date.time < "2024-09-29 20:00") %>%
-  mutate(j = as.POSIXlt(date.time)$yday) %>% #calculating julian day
+  mutate(j = as.POSIXlt(date.time)$yday + 1) %>% #calculating julian day, add 1 for leap year
   rename(light = Intensity.lum.per.sqft)
 
 str(d.t.2024)
@@ -108,15 +526,20 @@ GDD.2024 <- d.t.2024 %>%
   group_by(site.id) %>% 
   mutate(GDD.sum = cumsum(GDD),
          light.sum = cumsum(sum.light))
+```
+
+##Plots
+```{r}
   
 p <-ggplot(data = GDD.2024, aes(x = j, y = GDD.sum, color = site.id)) +
   geom_point() +
   geom_smooth(se = FALSE) +
   xlab("Julian Day") +
   ylab("GDD") +
-  scale_colour_brewer(palette = "PuOr") +
+  coord_cartesian(xlim = c(100,300)) +
+  scale_x_continuous(breaks = c(121, 152, 182, 213, 244, 276)) +
+  #scale_colour_brewer(palette = "PuOr") +
   theme_classic()
-  
 p
 
 p <-ggplot(data = GDD.2024, aes(x = j, y = light.sum, color = site.id)) +
@@ -124,243 +547,20 @@ p <-ggplot(data = GDD.2024, aes(x = j, y = light.sum, color = site.id)) +
   geom_smooth(se = FALSE) +
   xlab("Julian Day") +
   ylab("Light") +
-  scale_colour_brewer(palette = "PuOr") +
+  coord_cartesian(xlim = c(100,300)) +
+  scale_x_continuous(breaks = c(121, 152, 182, 213, 244, 276)) +
+  #scale_colour_brewer(palette = "PuOr") +
   theme_classic()
   
 p
 
-```
-
-#Phenology 2024
-##data carpentry (prop)
-```{r}
-str(d.flw.stage.2024)
-
-d.flw.stage.2024.sum <- d.flw.stage.2024 %>%
-  mutate(date.collected = mdy(date.collected)) %>%
-  group_by(town, site.id, date.collected, shoot.no) %>%
-  summarise(spathe.stage.PS = sum(spathe.stage.PS, na.rm = T), spathe.stage.0 = sum(spathe.stage.0, na.rm = T), spathe.stage.1 = sum(spathe.stage.1, na.rm = T), spathe.stage.2 = sum(spathe.stage.2, na.rm = T), spathe.stage.3 = sum(spathe.stage.3, na.rm = T), spathe.stage.4 = sum(spathe.stage.4, na.rm = T), spathe.stage.5 = sum(spathe.stage.5, na.rm = T), spathe.stage.6 = sum(spathe.stage.6, na.rm = T), spathe.stage.7 = sum(spathe.stage.7, na.rm = T), spathe.stage.unk = sum(spathe.stage.unk, na.rm = T)) %>%
-  mutate(no.spathe = spathe.stage.PS + spathe.stage.0 + spathe.stage.1 + spathe.stage.2 + spathe.stage.3 + spathe.stage.4 + spathe.stage.5 + spathe.stage.6 + spathe.stage.7 + spathe.stage.unk,
-         stage.PS = spathe.stage.PS/no.spathe,
-         stage.0 = spathe.stage.0/no.spathe,
-         stage.1 = spathe.stage.1/no.spathe,
-         stage.2 = spathe.stage.2/no.spathe,
-         stage.3 = spathe.stage.3/no.spathe,
-         stage.4 = spathe.stage.4/no.spathe,
-         stage.5 = spathe.stage.5/no.spathe,
-         stage.6 = spathe.stage.6/no.spathe,
-         stage.7 = spathe.stage.7/no.spathe,
-         stage.unk = spathe.stage.unk/no.spathe) %>%
-  select(town:shoot.no, stage.PS:stage.unk) %>%
-  pivot_longer(!town:shoot.no, names_to = "flw.stage", values_to = "prop") %>%
-  mutate(flw.stage = as.factor(flw.stage),
-         shoot.no = as.factor(shoot.no)) %>%
-  mutate(flw.stage = factor(flw.stage, levels=c ('stage.PS', 'stage.0', 'stage.1', 'stage.2', 'stage.3', 'stage.4', 'stage.5', 'stage.6', 'stage.7', 'stage.unk')))
-
-d.flw.stage.2024.sum = as.data.frame(d.flw.stage.2024.sum)
-
-
-str(d.flw.stage.2024.sum)
-```
-
-##Stage Proportion Plot Function (prop)
-```{r}
-stage.plot <- function(site.code) {
-  d.flw.stage.2024.sum %>%
-    filter(.data$site.id == .env$site.code) %>%
-    ggplot() +
-    aes(x = date.collected, y = prop, color = flw.stage) +
-    geom_point() +
-    geom_smooth(se = FALSE) +
-    xlab("Date") +
-    ylab("Proportion") +
-    scale_colour_brewer(palette = "PuOr", direction = -1) +
-    ggtitle(glue("Site: {site.code}")) +
-    theme(plot.title.position = "plot") +
-    theme_classic()
-}
-
-site.code <- c("SH", "CI", "PC", "LH", "PI", "AQ", "WB", "NB", "CB", "DC")
-
-site.plots <- map(site.code, stage.plot)
-
-site.plots[1:10]
-
-```
-
-##data carpentry (mean stage)
-```{r}
-str(d.flw.stage.2024)
-
-d.flw.stage.2024.mean <- d.flw.stage.2024 %>%
-  mutate(date.collected = mdy(date.collected)) %>%
-  group_by(town, site.id, date.collected, shoot.no) %>%
-  summarise(spathe.stage.PS = sum(spathe.stage.PS, na.rm = T), spathe.stage.0 = sum(spathe.stage.0, na.rm = T), spathe.stage.1 = sum(spathe.stage.1, na.rm = T), spathe.stage.2 = sum(spathe.stage.2, na.rm = T), spathe.stage.3 = sum(spathe.stage.3, na.rm = T), spathe.stage.4 = sum(spathe.stage.4, na.rm = T), spathe.stage.5 = sum(spathe.stage.5, na.rm = T), spathe.stage.6 = sum(spathe.stage.6, na.rm = T), spathe.stage.7 = sum(spathe.stage.7, na.rm = T), spathe.stage.unk = sum(spathe.stage.unk, na.rm = T)) %>%
-  mutate(spathe.stage.0 = spathe.stage.PS + spathe.stage.0,
-         spathe.stage.6 = spathe.stage.6 + spathe.stage.7,
-         no.spathe = + spathe.stage.0 + spathe.stage.1 + spathe.stage.2 + spathe.stage.3 + spathe.stage.4 + spathe.stage.5 + spathe.stage.6,
-         stage.0 = (spathe.stage.0/no.spathe)*0,
-         stage.1 = (spathe.stage.1/no.spathe)*1,
-         stage.2 = (spathe.stage.2/no.spathe)*2,
-         stage.3 = (spathe.stage.3/no.spathe)*3,
-         stage.4 = (spathe.stage.4/no.spathe)*4,
-         stage.5 = (spathe.stage.5/no.spathe)*5,
-         stage.6 = (spathe.stage.6/no.spathe)*6,
-         stage.sum = stage.0 + stage.1 + stage.2 + stage.3 + stage.4 +stage.5 + stage.6) %>%
-  select(town:shoot.no, stage.sum) %>%
-  mutate(j = as.POSIXlt(date.collected)$yday)
-
-d.flw.stage.2024.mean = as.data.frame(d.flw.stage.2024.mean)
-
-
-str(d.flw.stage.2024.mean)
-```
-
-##Stage Proportion Plot Function (mean stage)
-```{r}
-p <-ggplot(data = d.flw.stage.2024.mean, aes(x = j, y = stage.sum, color = site.id)) +
-  geom_point() +
-  geom_smooth(se = FALSE) +
-  xlab("Julian Day") +
-  ylab("Mean Stage Value") +
-  scale_colour_brewer(palette = "PuOr") +
-  geom_hline(yintercept = 4) +
-  theme_classic()
-  
-p
-
-#zoom plot
-p <-ggplot(data = d.flw.stage.2024.mean, aes(x =j, y = stage.sum, color = site.id)) +
-  geom_point() +
-  geom_smooth(se = FALSE) +
-  xlab("Julian Date") +
-  ylab("Mean Stage Value") +
-  scale_colour_brewer(palette = "PuOr") +
-  geom_hline(yintercept = 4) +
-  coord_cartesian(ylim = c(3.5,4.5), xlim = c(190,225)) +
-  scale_x_continuous(breaks = seq(190,230, by = 2)) +
-  theme_classic()
-p
-```
-
-##Plot mean stage prop by GDD
-```{r}
-d.flw.stage.2024.mean.GDD <- left_join(d.flw.stage.2024.mean, GDD.2024, by = c("site.id", "j"))
-
-d.flw.stage.2024.mean.GDD <- d.flw.stage.2024.mean.GDD %>%
-  filter(!is.na(GDD.sum))
-
-p <-ggplot(data = d.flw.stage.2024.mean.GDD, aes(x = GDD.sum, y = stage.sum, color = site.id)) +
-  geom_point() +
-  geom_smooth(se = FALSE) +
-  xlab("GDD") +
-  ylab("Mean Stage Value") +
-  scale_colour_brewer(palette = "PuOr") +
-  geom_hline(yintercept = 4) +
-  theme_classic()
-  
-p
-
-
-p <-ggplot(data = d.flw.stage.2024.mean.GDD, aes(x = j, y = stage.sum, color = site.id)) +
-  geom_point() +
-  geom_smooth(se = FALSE) +
-  xlab("Julian Day") +
-  ylab("Mean Stage Value") +
-  scale_colour_brewer(palette = "PuOr") +
-  geom_hline(yintercept = 4) +
-  theme_classic()
-  
-p
-```
-
-#Seed Production Per Shoot 2024
-##data carpentry
-```{r}
-str(d.flw.stage.2024)
-
-d.seed.production.2024.sum <- d.flw.stage.2024 %>%
-  mutate(date.collected = mdy(date.collected)) %>%
-  rowwise() %>%
-  mutate(no.seeds.total = sum(no.seeds, no.ovules.w.stigma, na.rm = T)) %>%
-  group_by(town, site.id, date.collected, shoot.no) %>%
-  summarise(no.seeds.total = sum(no.seeds.total, na.rm = T))
-
-d.seed.production.2024.sum = as.data.frame(d.seed.production.2024.sum)
-
-
-str(d.seed.production.2024.sum)
-```
-
-##Seed production per Shoot Plot Function
-```{r}
-
-seeds.per.shoot.plot <- function(site.code) {
-  d.seed.production.2024.sum %>%
-    filter(.data$site.id == .env$site.code) %>%
-    ggplot() +
-    aes(x = date.collected, y = no.seeds.total) +
-    geom_point() +
-    geom_smooth(se = FALSE) +
-    xlab("Date") +
-    ylab("Seeds per shoot") +
-    ggtitle(glue("Site: {site.code}")) +
-    theme(plot.title.position = "plot") +
-    theme_classic()
-}
-
-site.code <- c("SH", "CI", "PC", "LH", "AQ", "WB", "CB", "DC")
-
-site.plots <- map(site.code, seeds.per.shoot.plot)
-
-site.plots[1:8]
-
-
-
-p <-ggplot(data = d.seed.production.2024.sum, aes(x = date.collected, y = no.seeds.total, color = site.id)) +
-  geom_point() +
-  geom_smooth(se = FALSE) +
-  xlab("Date") +
-  ylab("Seeds per shoot") +
-  scale_colour_brewer(palette = "PuOr") +
-  theme_classic()
-  
-p
-
-```
-
-
-#Flw Density 2024
-##data carpentry
-```{r}
-str(d.flw.den.2024)
-
-d.flw.den.2024.clean <- d.flw.den.2024 %>%
-  mutate(date.collected = mdy(date.collected)) %>%
-  select(date.collected, site.id, quadrat.no, shoot.type, shoot.no) %>%
-  spread(key = shoot.type, value = shoot.no) %>%
-  filter(reproductive > 0 | vegetative > 0) %>% #only plots where eelgrass is present
-  mutate(flw.m.sq = reproductive * 4)
-
-```
-
-##Flw Density Plot Function
-```{r}
-p <-ggplot(data = d.flw.den.2024.clean, aes(x = date.collected, y = flw.m.sq, color = site.id)) +
-  geom_point() +
-  geom_smooth() +
-  xlab("Date") +
-  ylab("Repros per m2") +
-  scale_colour_brewer(palette = "PuOr") +
-  theme_classic()
-  
-p
 ```
 
 
 #Seed Density 2024
 ##Data Carpentry
 ```{r}
+
 #Summarise to mean reproductive shoot density in plots where eelgrass present for each monitoring date
 d.flw.den.2024.sd <- d.flw.den.2024 %>%
   mutate(date.collected = mdy(date.collected)) %>%
@@ -384,7 +584,7 @@ d.seed.den.2024 <- merge(d.flw.den.2024.sd, d.seed.production.2024.sd, by = c("s
 d.seed.den.2024.f <- d.seed.den.2024 %>%
   mutate(mean.seeds = replace(mean.seeds, is.na(mean.seeds), 0)) %>% #replacing dates with no seeds to 0
   mutate(seeds.m.sq = mean.flw.m.sq*mean.seeds, #calculating seeds per m2
-         j = as.POSIXlt(date.collected)$yday) #calculating julian day
+         j = as.POSIXlt(date.collected)$yday + 1) #calculating julian day, add 1 for leap year
 
 d.seed.den.2024.GDD <- left_join(d.seed.den.2024.f, GDD.2024, by = c("site.id", "j")) #Adding GDD to seed production data set
 
@@ -396,16 +596,42 @@ d.seed.den.2024.GDD <- d.seed.den.2024.GDD %>%
 
 ##Plot by Date
 ```{r}
-p <-ggplot(data = d.seed.den.2024.f, aes(x = j, y = seeds.m.sq+1, color = site.id)) +
+p <-ggplot(data = d.seed.den.2024.f, aes(x = j, y = seeds.m.sq, color = site.id)) +
   geom_point() +
   geom_smooth(se = FALSE) +
   xlab("Date") +
   ylab("Seeds per m2") +
-  scale_colour_brewer(palette = "PuOr") +
-  scale_y_continuous(trans = 'log10') +
+  coord_cartesian(xlim = c(100,300)) +
+  scale_x_continuous(breaks = c(121, 152, 182, 213, 244, 276)) +
+  #scale_colour_brewer(palette = "PuOr") +
+  #scale_y_continuous(trans = 'log10') +
   theme_classic()
   
 p
+
+seeds.per.m2.plot <- function(site.code) {
+  d.seed.den.2024.f %>%
+    filter(.data$site.id == .env$site.code) %>%
+    ggplot() +
+    aes(x = j, y = seeds.m.sq) +
+    geom_point() +
+    geom_smooth(se = TRUE) +
+    coord_cartesian(xlim = c(100,300)) +
+    scale_x_continuous(breaks = c(121, 152, 182, 213, 244, 276)) +
+    xlab("Date") +
+    ylab("Seeds per m2") +
+    ggtitle(glue("Site: {site.code}")) +
+    theme(plot.title.position = "plot") +
+    theme_classic()
+}
+
+site.code <- c("SH", "CI", "PC", "LH", "PV", "AQ", "WB", "NB", "CB", "DC", "CC", "GB", "LI", "OB", "WC", "WI", "CL", "FG", "GI", "JB", "NR", "NK", "PI", "QU")
+
+site.plots <- purrr::map(site.code, seeds.per.m2.plot)
+
+site.plots[1:24]
+
+
 
 
 p <-ggplot(data = d.seed.den.2024.f, aes(x =j, y = seeds.m.sq+1, color = site.id)) +
@@ -430,8 +656,129 @@ p <-ggplot(data = d.seed.den.2024.GDD, aes(x = GDD.sum, y = seeds.m.sq+1, color 
   geom_smooth(se = FALSE) +
   xlab("GDD") +
   ylab("Seeds per m2") +
-  scale_colour_brewer(palette = "PuOr") +
-  scale_y_continuous(trans = 'log10') +
+  #scale_colour_brewer(palette = "PuOr") +
+  #scale_y_continuous(trans = 'log10') +
+  theme_classic()
+  
+p
+
+#to compare same sites but plotting by date
+p <-ggplot(data = d.seed.den.2024.GDD, aes(x = j, y = seeds.m.sq, color = site.id)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  xlab("Date") +
+  ylab("Seeds per m2") +
+  coord_cartesian(xlim = c(100,300)) +
+  scale_x_continuous(breaks = c(121, 152, 182, 213, 244, 276)) +
+  #scale_colour_brewer(palette = "PuOr") +
+  #scale_y_continuous(trans = 'log10') +
+  theme_classic()
+  
+p
+
+```
+
+##Plot stage prop by GDD
+```{r}
+d.flw.stage.2024.mean.GDD <- left_join(d.flw.stage.2024.mean, GDD.2024, by = c("site.id", "j"))
+
+d.flw.stage.2024.mean.GDD <- d.flw.stage.2024.mean.GDD %>%
+  filter(!is.na(GDD.sum))
+
+p <-ggplot(data = d.flw.stage.2024.mean.GDD, aes(x = GDD.sum, y = stage.sum, color = site.id)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  xlab("GDD") +
+  ylab("Mean Stage Value") +
+  #scale_colour_brewer(palette = "PuOr") +
+  geom_hline(yintercept = 4) +
+  theme_classic()
+  
+p
+
+
+p <-ggplot(data = d.flw.stage.2024.mean.GDD, aes(x = j, y = stage.sum, color = site.id)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  xlab("Julian Day") +
+  ylab("Mean Stage Value") +
+  #scale_colour_brewer(palette = "PuOr") +
+  coord_cartesian(xlim = c(100,300)) +
+  scale_x_continuous(breaks = c(121, 152, 182, 213, 244, 276)) +
+  geom_hline(yintercept = 4) +
+  theme_classic()
+  
+p
+```
+
+#Relative Seed Abundance 2024
+##Data Carpentry
+```{r}
+str(d.seed.den.2024.f)
+
+d.max.seed.2024 <- d.seed.den.2024.f %>%
+  group_by(site.id) %>%
+  summarise(max.seeds.m.sq = max(seeds.m.sq, na.rm = T))
+
+d.RSA.2024 <- left_join(d.seed.den.2024.f, d.max.seed.2024, by = c("site.id")) %>% #Adding GDD to seed production data set
+  mutate(RSA = seeds.m.sq/max.seeds.m.sq)
+
+d.RSA.2024.GDD <- left_join(d.RSA.2024, GDD.2024, by = c("site.id", "j")) #Adding GDD to seed production data set
+
+d.RSA.2024.GDD <- d.RSA.2024.GDD %>%
+  filter(!is.na(GDD.sum))
+
+```
+##Plot by Date
+```{r}
+
+p <-ggplot(data = d.RSA.2024, aes(x = j, y = RSA, color = site.id)) +
+  geom_point() +
+  geom_line() +
+  #geom_smooth(se = FALSE) +
+  xlab("Date") +
+  ylab("Relative Seed Abundance") +
+  coord_cartesian(xlim = c(100,300)) +
+  scale_x_continuous(breaks = c(121, 152, 182, 213, 244, 276)) +
+  #scale_colour_brewer(palette = "PuOr") +
+  #scale_y_continuous(trans = 'log10') +
+  theme_classic()
+  
+p
+
+RSA.plot <- function(site.code) {
+  d.RSA.2024 %>%
+    filter(.data$site.id == .env$site.code) %>%
+    ggplot() +
+    aes(x = j, y = RSA) +
+    geom_point() +
+    geom_line() +
+    #geom_smooth(se = FALSE) +
+    coord_cartesian(xlim = c(100,300)) +
+    scale_x_continuous(breaks = c(121, 152, 182, 213, 244, 276)) +
+    xlab("Date") +
+    ylab("Relative Seed Abundance") +
+    ggtitle(glue("Site: {site.code}")) +
+    theme(plot.title.position = "plot") +
+    theme_classic()
+}
+
+site.code <- c("SH", "CI", "PC", "LH", "PV", "AQ", "WB", "NB", "CB", "DC", "CC", "GB", "LI", "OB", "WC", "WI", "CL", "FG", "GI", "JB", "NR", "NK", "PI", "QU")
+
+site.plots <- purrr::map(site.code, RSA.plot)
+
+site.plots[1:24]
+```
+##Plot by GDD
+```{r}
+p <-ggplot(data = d.RSA.2024.GDD, aes(x = GDD.sum, y = RSA, color = site.id)) +
+  geom_point() +
+  geom_line() +
+  #geom_smooth(se = FALSE) +
+  xlab("GDD") +
+  ylab("Relative Seed Abundance") +
+  #scale_colour_brewer(palette = "PuOr") +
+  #scale_y_continuous(trans = 'log10') +
   theme_classic()
   
 p
@@ -487,7 +834,7 @@ plot(mod.j.lat)
 mod.j <- gam(seeds.m.sq~s(j, bs = 'cc'), data=d.seed.den.2024.GDD, family=fam, select=TRUE, method="REML") 
 summary(mod.j)
 plot(mod.j,
-     xlim = c(148,256))
+     xlim = c(140,260))
 
 #GAM seeds by latitude
 mod.lat <- gam(seeds.m.sq ~ s(latitude, k = 5), data = d.seed.den.2024.GDD, family = fam, select = TRUE, method = "REML")
@@ -528,6 +875,7 @@ summary(mod.full)
 plot(mod.full)
 qq.gam(mod.full) #IS THE ERROR DISTRIBUTION APPROPRIATE?
 gam.check(mod.full) #CHECK TO SEE IF SMOOTHERS HAVE BEEN GIVEN SUFFICIENT EDF
+
 
 ```
 
@@ -582,4 +930,45 @@ plot(mod.full)
 qq.gam(mod.full) #IS THE ERROR DISTRIBUTION APPROPRIATE?
 gam.check(mod.full) #CHECK TO SEE IF SMOOTHERS HAVE BEEN GIVEN SUFFICIENT EDF
 ```
+
+#Site Map
+```{r}
+setwd("C:/Users/Forest.Schenck/Desktop")
+
+
+tiff(filename = "site.map.tiff", height = 5600, width = 5200, units = "px", res = 800, compression = "lzw")
+map("worldHires", "usa", xlim = c(-71.85, -69.95), ylim = c(41.25, 42.729), col = "grey", fill = T, lwd = 0.01)
+points(mapproject(list(x = -70.85289, y = 42.53003)), pch = 19, cex = 1, col = "black") #AQ
+points(mapproject(list(x = -70.80848, y = 42.55635)), pch = 19, cex = 1, col = "black") #WB
+points(mapproject(list(x = -70.68275, y = 42.65720)), pch = 19, cex = 1, col = "black") #CB
+points(mapproject(list(x = -70.67422, y = 42.66801)), pch = 19, cex = 1, col = "black") #DC
+points(mapproject(list(x = -70.68233, y = 41.98567)), pch = 19, cex = 1, col = "black") #PC "lightblue"
+points(mapproject(list(x = -70.61506, y = 42.00343)), pch = 19, cex = 1, col = "black") #SH "darkgreen"
+points(mapproject(list(x = -70.64148, y = 42.00146)), pch = 19, cex = 1, col = "black") #CI
+points(mapproject(list(x = -70.95276, y = 42.43701)), pch = 19, cex = 1, col = "black") #LH
+points(mapproject(list(x = -70.65669, y = 42.59809)), pch = 19, cex = 1, col = "black") #NB
+points(mapproject(list(x = -70.91592, y = 42.42002)), pch = 19, cex = 1, col = "black") #PI
+points(mapproject(list(x = -71.72232, y = 41.34719)), pch = 19, cex = 1, col = "black") #Shady Harbor
+points(mapproject(list(x = -71.63434, y = 41.36879)), pch = 19, cex = 1, col = "black") #The Arches
+points(mapproject(list(x = -71.65471, y = 41.36441)), pch = 19, cex = 1, col = "black") #Ninigret Kayak
+points(mapproject(list(x = -71.516065, y = 41.380007)), pch = 19, cex = 1, col = "black") #Coastal Field Lab
+points(mapproject(list(x = -71.50799, y = 41.38976)), pch = 19, cex = 1, col = "black") #Great Island
+points(mapproject(list(x = -71.36642, y = 41.49758)), pch = 19, cex = 1, col = "black") #Conanicus
+points(mapproject(list(x = -71.39762, y = 41.49342)), pch = 19, cex = 1, col = "black") #Fort Getty
+points(mapproject(list(x = -71.320328, y = 41.581383)), pch = 19, cex = 1, col = "black") #Prudence Island
+points(mapproject(list(x = -70.657151, y = 41.741083)), pch = 19, cex = 1, col = "black") #Onset
+points(mapproject(list(x = -70.673056, y = 41.524995)), pch = 19, cex = 1, col = "black") #Garbage Beach
+points(mapproject(list(x = -70.647106, y = 41.690511)), pch = 19, cex = 1, col = "black") #Wings Cove
+points(mapproject(list(x = -70.911218, y = 41.595157)), pch = 19, cex = 1, col = "black") #Clarks Cove
+points(mapproject(list(x = -70.824288, y = 41.582794)), pch = 19, cex = 1, col = "black") # West Island
+points(mapproject(list(x = -70.648689, y = 41.611945)), pch = 19, cex = 1, col = "black") #Little Island
+points(mapproject(list(x = -70.55405, y = 41.44615)), pch = 19, cex = 1, col = "black") #Hart Haven
+points(mapproject(list(x = -70.6254, y = 41.45903)), pch = 19, cex = 1, col = "black") #Lake Tashmoo
+points(mapproject(list(x = -70.07658, y = 41.28507)), pch = 19, cex = 1, col = "black") #Monomoy
+points(mapproject(list(x = -69.99902, y = 41.33083)), pch = 19, cex = 1, col = "black") #Wauwinet
+points(mapproject(list(x = -69.9558412, y = 41.7516166)), pch = 19, cex = 1, col = "black") #Pleasant Bay
+dev.off()
+```
+
+
 
